@@ -3,13 +3,15 @@ package com.example.transactionalms.dto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class TransactionRequestDTO {
     @NotBlank(message = "El accountId no puede estar vacío.")
     private String accountId;
