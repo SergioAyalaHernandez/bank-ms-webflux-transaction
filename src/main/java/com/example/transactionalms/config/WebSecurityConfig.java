@@ -1,9 +1,9 @@
 package com.example.transactionalms.config;
 
 import com.example.transactionalms.config.token.TokenForwardingFilter;
-import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -28,6 +28,7 @@ public class WebSecurityConfig {
         return http
                 .addFilterBefore(tokenFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .cors(ServerHttpSecurity.CorsSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .authenticationManager(authenticationManager)
@@ -35,7 +36,7 @@ public class WebSecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/swagger-ui/**").permitAll()
                         .pathMatchers("/api/public/**").permitAll()
-                        .pathMatchers(String.valueOf(HttpMethod.OPTIONS)).permitAll()
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .build();
