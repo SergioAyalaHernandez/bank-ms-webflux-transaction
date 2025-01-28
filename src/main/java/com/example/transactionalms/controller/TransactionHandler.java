@@ -6,6 +6,7 @@ import com.example.transactionalms.service.TransactionService;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -28,10 +29,30 @@ public class TransactionHandler {
     }
 
     public Mono<ServerResponse> streamTransactions(ServerRequest request) {
-        return ServerResponse.ok()
-                .contentType(MediaType.TEXT_EVENT_STREAM)
-                .body(transactionService.streamTransactions(), Transaction.class);
+        String accountId = request.queryParam("accountId")
+                .orElse(null);
+
+        if (accountId == null || accountId.isEmpty()) {
+            return ServerResponse.badRequest()
+                    .bodyValue("El parámetro 'accountId' es requerido y no puede estar vacío.");
+        }
+
+        return transactionService.existsByAccountId(accountId)
+                .flatMap(exists -> {
+                    if (!exists) {
+                        return ServerResponse.badRequest()
+                                .bodyValue("No se encontraron transacciones para accountId: " + accountId);
+                    }
+                    return ServerResponse.ok()
+                            .contentType(MediaType.TEXT_EVENT_STREAM)
+                            .body(transactionService.streamTransactions(accountId), Transaction.class);
+                })
+                .onErrorResume(e -> {
+                    return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .bodyValue("Ocurrió un error inesperado: " + e.getMessage());
+                });
     }
+
 
     private void validateTransaction(TransactionRequestDTO transactionRequest) {
         var validator = Validation.buildDefaultValidatorFactory().getValidator();
