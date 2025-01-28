@@ -33,6 +33,7 @@ public class WebSecurityConfig {
                 .authenticationManager(authenticationManager)
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/swagger-ui/**").permitAll()
                         .pathMatchers("/api/public/**").permitAll()
                         .pathMatchers(String.valueOf(HttpMethod.OPTIONS)).permitAll()
                         .anyExchange().authenticated()

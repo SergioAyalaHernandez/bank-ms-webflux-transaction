@@ -22,6 +22,11 @@ public class TokenForwardingFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        String path = exchange.getRequest().getURI().getPath();
+
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui.html") || path.startsWith("/webjars/swagger-ui")) {
+            return chain.filter(exchange);
+        }
         String authHeader = exchange.getRequest()
                 .getHeaders()
                 .getFirst(HttpHeaders.AUTHORIZATION);
