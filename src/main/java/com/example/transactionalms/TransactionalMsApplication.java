@@ -23,16 +23,4 @@ public class TransactionalMsApplication {
         SpringApplication.run(TransactionalMsApplication.class, args);
     }
 
-    @Bean
-    public CorsWebFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("");
-        config.addAllowedHeader("");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        return new CorsWebFilter(source);
-    }
 }
