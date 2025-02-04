@@ -7,7 +7,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -29,6 +31,11 @@ jobs:
             PORT=8081
             MONGO_URI=${{ secrets.MONGO_URI }}
             MONGO_DATA_BASE=${{ secrets.MONGO_DATA_BASE }}
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
@@ -38,9 +45,9 @@ jobs:
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
-              path: ~/.gradle/caches
-              key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-              restore-keys: ${{ runner.os }}-gradle
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
