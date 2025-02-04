@@ -1,4 +1,7 @@
-FROM openjdk:17-jdk-slim
+FROM gradle:8.5-jdk17 AS build
+WORKDIR /app
+COPY --chown=gradle:gradle . .
+RUN gradle clean build -x test
 
 ARG PORT
 ARG MONGO_URI
@@ -8,6 +11,8 @@ ENV PORT=${PORT}
 ENV MONGO_URI=${MONGO_URI}
 ENV MONGO_DATA_BASE=${MONGO_DATA_BASE}
 
-COPY target/*.jar app.jar
+FROM openjdk:17-jdk
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar /app/app.jar
 EXPOSE ${PORT}
-ENTRYPOINT ["java","-jar","/app.jar"]
+CMD ["java", "-jar", "/app/app.jar"]
