@@ -7,7 +7,7 @@ on:
       branches: [ "main" ]
 
 jobs:
-  build_and_publish:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,4 +15,4 @@ jobs:
         run: |
           docker login --username SergioAyalaHernandez --password token: ${{ secrets.TOKEN_GH}} ghcr.io
           docker build . -t ghcr.io/sergioayalahernandez/ms2-bank-reactive:latest
-          docker push . ghcr.io/sergioayalahernandez/ms2-bank-reactive:latest
+          docker push ghcr.io/sergioayalahernandez/ms2-bank-reactive:latest
