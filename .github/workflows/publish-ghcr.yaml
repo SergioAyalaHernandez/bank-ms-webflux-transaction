@@ -11,9 +11,13 @@ jobs:
       - uses: actions/checkout@v3
       - name: build and push the image
         run: |
-          docker login --username SergioAyalaHernandez --password ${{ secrets.TOKEN_GH}} ghcr.io
+          docker login --username SergioAyalaHernandez --password ${{ secrets.TOKEN_GH }} ghcr.io
           docker build . -t ghcr.io/sergioayalahernandez/ms2-bank-reactive:latest
           docker push ghcr.io/sergioayalahernandez/ms2-bank-reactive:latest
       - name: run the container
         run: |
-          docker run -e PORT=${{ secrets.PORT }} -p 8081:8081 ghcr.io/sergioayalahernandez/ms2-bank-reactive
+          docker run -e PORT=${{ secrets.PORT }} \
+                     -e MONGO_URI=${{ secrets.MONGO_URI }} \
+                     -e MONGO_DATA_BASE=${{ secrets.MONGO_DATA_BASE }} \
+                     -p 8081:8081 ghcr.io/sergioayalahernandez/ms2-bank-reactive
+
