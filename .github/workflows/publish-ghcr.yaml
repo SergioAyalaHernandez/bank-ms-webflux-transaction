@@ -31,10 +31,12 @@ jobs:
             MONGO_DATA_BASE=${{ secrets.MONGO_DATA_BASE }}
 
       - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-actions@master
         env:
-          GITHUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+          HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.projectKey=sergioayalahernandez \
-          -Dsonar.organization=bank-ms-webflux-transaction
+        whit:
+          args: >
+            -Dsonar.organization=bank-ms-webflux-transaction
+            -Dsonar.projectKey=sergioayalahernandez 
+              
