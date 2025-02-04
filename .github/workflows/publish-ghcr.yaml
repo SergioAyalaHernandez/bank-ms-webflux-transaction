@@ -26,6 +26,6 @@ jobs:
           push: true
           tags: ghcr.io/sergioayalahernandez/ms2-bank-reactive:latest
           build-args: |
-            PORT=${{ secrets.PORT }}
+            PORT=8081
             MONGO_URI=${{ secrets.MONGO_URI }}
             MONGO_DATA_BASE=${{ secrets.MONGO_DATA_BASE }}
