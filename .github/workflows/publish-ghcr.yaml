@@ -29,7 +29,8 @@ jobs:
             PORT=8081
             MONGO_URI=${{ secrets.MONGO_URI }}
             MONGO_DATA_BASE=${{ secrets.MONGO_DATA_BASE }}
-
+      - name: Check Branch
+        run: echo "Running on branch $GITHUB_REF_NAME"
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v4.1.0
         env:
