@@ -14,3 +14,6 @@ jobs:
           docker login --username SergioAyalaHernandez --password ${{ secrets.TOKEN_GH}} ghcr.io
           docker build . -t ghcr.io/sergioayalahernandez/ms2-bank-reactive:latest
           docker push ghcr.io/sergioayalahernandez/ms2-bank-reactive:latest
+      - name: run the container
+        run: |
+          docker run -e PORT=${{ secrets.PORT }} -p 8081:8081 ghcr.io/sergioayalahernandez/ms2-bank-reactive
