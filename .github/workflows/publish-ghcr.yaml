@@ -38,5 +38,5 @@ jobs:
         with:
           args: >
             -Dsonar.organization=bank-ms-webflux-transaction
-            -Dsonar.projectKey=bank-ms-webflux-transaction_sergioayalahernandez
+            -Dsonar.projectKey=sergioayalahernandez
             -Dsonar.host.url=https://sonarcloud.io
