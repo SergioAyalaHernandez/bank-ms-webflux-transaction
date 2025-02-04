@@ -40,4 +40,5 @@ jobs:
             -Dsonar.organization=sergioayalahernandez
             -Dsonar.projectKey=bank-ms-webflux-transaction
             -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.branch.name=main
 
