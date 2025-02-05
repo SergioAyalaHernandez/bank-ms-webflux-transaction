@@ -24,14 +24,17 @@ jobs:
 
       - name: Get version from Gradle
         id: gradle_version
-        run: echo "VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_OUTPUT
+        run: |
+          chmod +x ./gradlew
+          echo "VERSION=$(grep "version = '" build.gradle | sed "s/version = '//" | sed "s/:latest'//")" >> $GITHUB_OUTPUT
 
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: ghcr.io/sergioayalahernandez/ms2-bank-reactive:${{ steps.gradle_version.outputs.VERSION }}
+          tags: |
+            ghcr.io/sergioayalahernandez/ms2-bank-reactive:${{ steps.gradle_version.outputs.VERSION }}
           build-args: |
             PORT=8081
             MONGO_URI=${{ secrets.MONGO_URI }}
