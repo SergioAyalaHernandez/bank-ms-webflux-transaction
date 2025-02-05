@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET_KEY = "s3r610";
-    private static final Algorithm ALGORITHM = Algorithm.HMAC256(SECRET_KEY);
+    private static final String secretKey = "s3r610";
+    private static final Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
     public String getUserName(String jwt) {
-        return JWT.require(ALGORITHM)
+        return JWT.require(algorithm)
                 .build()
                 .verify(jwt)
                 .getSubject();
@@ -19,7 +19,7 @@ public class JwtUtil {
 
     public boolean isValid(String jwt) {
         try {
-            JWT.require(ALGORITHM)
+            JWT.require(algorithm)
                     .build()
                     .verify(jwt);
             return true;

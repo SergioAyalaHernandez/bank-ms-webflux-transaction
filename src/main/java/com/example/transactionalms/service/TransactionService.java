@@ -90,16 +90,6 @@ public class TransactionService {
         return transaction;
     }
 
-    private Mono<TransactionResponseDTO> getTransactionResponseDTOMono(TransactionRequestDTO request, Transaction transaction, BigDecimal finalBalance) {
-        return transactionRepository.save(transaction)
-                .flatMap(savedTransaction -> webClient.post()
-                        .uri("/{id}/balance", request.getAccountId())
-                        .bodyValue(new UpdateBalanceRequest(finalBalance))
-                        .retrieve()
-                        .bodyToMono(Void.class)
-                        .thenReturn(mapToResponse(savedTransaction)));
-    }
-
     private TransactionResponseDTO mapToResponse(Transaction transaction) {
         TransactionResponseDTO response = new TransactionResponseDTO();
         response.setTransactionId(transaction.getId());

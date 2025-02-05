@@ -3,7 +3,6 @@ package com.example.transactionalms.controller;
 import com.example.transactionalms.dto.TransactionRequestDTO;
 import com.example.transactionalms.model.Transaction;
 import com.example.transactionalms.service.TransactionService;
-import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,6 +42,7 @@ public class TransactionHandler {
         }
 
         return transactionService.existsByAccountId(accountId)
+                .map(Boolean::booleanValue)
                 .flatMap(exists -> {
                     if (!exists) {
                         return ServerResponse.badRequest()
