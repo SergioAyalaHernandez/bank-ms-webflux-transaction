@@ -26,7 +26,8 @@ jobs:
         id: gradle_version
         run: |
           chmod +x ./gradlew
-          echo "VERSION=$(grep "version = '" build.gradle | sed "s/version = '//" | sed "s/:latest'//")" >> $GITHUB_OUTPUT
+          VERSION=$(grep "version = '" build.gradle | sed "s/version = '//" | sed "s/'//g")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build and push
         uses: docker/build-push-action@v4
