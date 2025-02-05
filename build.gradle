@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.example'
-version = 'v.1.1.8:latest'
+version = 'v.1.1.8'
 
 java {
     toolchain {
