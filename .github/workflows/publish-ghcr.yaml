@@ -35,7 +35,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/sergioayalahernandez/ms2-bank-reactive:latest
-            ghcr.io/sergioayalahernandez/ms2-bank-reactive:${{ steps.gradle_version.outputs.VERSION }}
+            ghcr.io/sergioayalahernandez/ms2-bank-reactive${{ steps.gradle_version.outputs.VERSION }}
           build-args: |
             PORT=8081
             MONGO_URI=${{ secrets.MONGO_URI }}
