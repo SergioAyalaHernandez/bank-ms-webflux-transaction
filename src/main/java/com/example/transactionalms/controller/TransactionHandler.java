@@ -42,20 +42,16 @@ public class TransactionHandler {
         }
 
         return transactionService.existsByAccountId(accountId)
-                .map(Boolean::booleanValue)
-                .flatMap(exists -> {
-                    if (!exists) {
-                        return ServerResponse.badRequest()
-                                .bodyValue("No se encontraron transacciones para accountId: " + accountId);
-                    }
-                    return ServerResponse.ok()
-                            .contentType(MediaType.TEXT_EVENT_STREAM)
-                            .body(transactionService.streamTransactions(accountId), Transaction.class);
-                })
-                .onErrorResume(e -> {
-                    return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .bodyValue("Ocurrió un error inesperado: " + e.getMessage());
-                });
+                .flatMap(exists -> exists
+                        ? ServerResponse.ok()
+                        .contentType(MediaType.TEXT_EVENT_STREAM)
+                        .body(transactionService.streamTransactions(accountId), Transaction.class)
+                        : ServerResponse.badRequest()
+                        .bodyValue("No se encontraron transacciones para accountId: " + accountId)
+                )
+                .onErrorResume(e -> ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .bodyValue("Ocurrió un error inesperado: " + e.getMessage())
+                );
     }
 
 

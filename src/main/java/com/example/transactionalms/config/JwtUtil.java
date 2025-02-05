@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtil {
-    private static final String secretKey = "s3r610";
-    private static final Algorithm algorithm = Algorithm.HMAC256(secretKey);
+    private static String secretKey = "s3r610";
+    private static Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
     public String getUserName(String jwt) {
         return JWT.require(algorithm)

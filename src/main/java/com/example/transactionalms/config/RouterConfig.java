@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
@@ -51,7 +52,7 @@ public class RouterConfig {
                     )
             )
     })
-    public RouterFunction<?> routes(TransactionHandler handler) {
+    public RouterFunction<ServerResponse> routes(TransactionHandler handler) {
         return RouterFunctions
                 .route(POST("/api/transactions"), handler::performTransaction)
                 .andRoute(GET("/api/transactions/stream"), handler::streamTransactions);
