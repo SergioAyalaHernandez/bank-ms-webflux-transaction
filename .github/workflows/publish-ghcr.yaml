@@ -69,7 +69,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./gradlew build sonar --continue --info \
-          -Dsonar.coverage.includes=test/java/com/sergio/bank/controller/**,test/java/com/sergio/bank/repository/**,test/java/com/sergio/bank/service/**
+          -Dsonar.coverage.includes=test/java/com/example/transctionalms/controller/**
 
   publish:
     needs: sonar
