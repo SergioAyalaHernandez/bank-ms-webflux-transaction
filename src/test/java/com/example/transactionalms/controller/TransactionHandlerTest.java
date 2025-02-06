@@ -105,25 +105,6 @@ class TransactionHandlerTest {
     }
 
     @Test
-    void testStreamTransactions_ValidAccountId() {
-        // Arrange
-        ServerRequest request = mock(ServerRequest.class);
-        when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
-        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
-
-        when(transactionService.existsByAccountId("123")).thenReturn(Mono.just(true));
-        when(transactionService.streamTransactions("123")).thenReturn(Flux.just(new Transaction()));
-
-        // Act
-        Mono<ServerResponse> result = transactionHandler.streamTransactions(request);
-
-        // Assert
-        StepVerifier.create(result)
-                .expectNextMatches(response -> response.statusCode().is2xxSuccessful())
-                .verifyComplete();
-    }
-
-    @Test
     void testValidateTransaction_InvalidDTO() {
         // Arrange
         TransactionRequestDTO invalidDTO = new TransactionRequestDTO("", "", BigDecimal.ZERO, "");

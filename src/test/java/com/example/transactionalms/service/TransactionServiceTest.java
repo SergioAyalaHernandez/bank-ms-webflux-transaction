@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class TransactionServiceTest {
+class TransactionServiceTest {
 
     @Test
-    public void testMapDataToTransaction() {
+    void testMapDataToTransaction() {
         // Preparar el objeto de entrada
         TransactionRequestDTO request = new TransactionRequestDTO();
         request.setAccountId("account123");
@@ -37,7 +37,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void testMapToResponseManually() {
+    void testMapToResponseManually() {
         // Crear una instancia del objeto Transaction
         Transaction transaction = new Transaction();
         transaction.setId(String.valueOf(1L));
