@@ -67,7 +67,9 @@ jobs:
       - name: Build and analyze with SonarQube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build sonar --continue --info -Dsonar.coverage.exclusions=**
+        run: |
+          ./gradlew build sonar --continue --info \
+          -Dsonar.coverage.includes=test/java/com/sergio/bank/controller/**,test/java/com/sergio/bank/repository/**,test/java/com/sergio/bank/service/**
 
   publish:
     needs: sonar
