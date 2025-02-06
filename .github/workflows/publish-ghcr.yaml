@@ -70,7 +70,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./gradlew build sonar --continue --info \
-          -Dsonar.coverage.includes=test/java/com/example/transactionalms/controller/**test/java/com/example/transactionalms/service/**
+          -Dsonar.coverage.includes=test/java/com/example/transactionalms/controller/**
+          -Dsonar.sources=src/main/java \
+          -Dsonar.tests=src/test/java \
+          -Dsonar.exclusions=**/main/java/com/example/transactionalms/config/**,**/main/java/com/example/transactionalms/dot/**,**/main/java/com/example/transactionalms/model/****/main/java/com/example/transactionalms/repository/**,**/main/java/com/example/transactionalms/service/**,**/*.json,**/*.png,**/*.md,**/*.txt,**/*.properties,**/*.gradle,**/*.yml,**/test/resources/**
 
   publish:
     needs: sonar
