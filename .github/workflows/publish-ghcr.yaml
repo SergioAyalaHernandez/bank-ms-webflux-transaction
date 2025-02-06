@@ -92,7 +92,7 @@ jobs:
         run: |
           chmod +x ./gradlew
           VERSION=$(grep "version = '" build.gradle | sed "s/version = '//" | sed "s/'//g")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
