@@ -20,8 +20,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionHandlerTest {
@@ -134,6 +133,86 @@ class TransactionHandlerTest {
             transactionHandler.validateTransaction(invalidDTO);
         });
     }
+
+    @Test
+    void testStreamTransactions_NoTransactionsFound() {
+        // Arrange
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
+        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
+
+        when(transactionService.existsByAccountId("123")).thenReturn(Mono.just(false));
+
+        // Act
+        Mono<ServerResponse> result = transactionHandler.streamTransactions(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.statusCode().is4xxClientError())
+                .verifyComplete();
+    }
+
+
+    @Test
+    void testStreamTransactions_ServiceError() {
+        // Arrange
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
+        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
+
+        when(transactionService.existsByAccountId("123")).thenReturn(Mono.error(new RuntimeException("Database error")));
+
+        // Act
+        Mono<ServerResponse> result = transactionHandler.streamTransactions(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.statusCode().is5xxServerError())
+                .verifyComplete();
+    }
+
+    @Test
+    void testPerformTransaction_InvalidRequest() {
+        // Arrange
+        TransactionRequestDTO invalidDTO = new TransactionRequestDTO("", "", BigDecimal.ZERO, "");
+
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.bodyToMono(TransactionRequestDTO.class)).thenReturn(Mono.just(invalidDTO));
+
+        // Act
+        Mono<ServerResponse> result = transactionHandler.performTransaction(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.statusCode().is4xxClientError())
+                .verifyComplete();
+    }
+
+
+    @Test
+    void testPerformTransaction_Success_2() {
+        // Arrange
+        TransactionRequestDTO requestDTO = new TransactionRequestDTO("1", "DEPOSIT", new BigDecimal("100.00"), "1");
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+
+        when(transactionService.performTransaction(any(TransactionRequestDTO.class)))
+                .thenReturn(Mono.just(responseDTO));
+
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.bodyToMono(TransactionRequestDTO.class)).thenReturn(Mono.just(requestDTO));
+
+        // Act
+        Mono<ServerResponse> result = transactionHandler.performTransaction(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.statusCode().is2xxSuccessful())
+                .verifyComplete();
+
+        // Verifica que el método de servicio se llamó exactamente 1 vez
+        verify(transactionService, times(1)).performTransaction(any(TransactionRequestDTO.class));
+    }
+
 
 
 }
