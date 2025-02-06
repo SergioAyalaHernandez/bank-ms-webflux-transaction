@@ -19,6 +19,7 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -129,7 +130,7 @@ class TransactionHandlerTest {
         TransactionRequestDTO invalidDTO = new TransactionRequestDTO("", "", BigDecimal.ZERO, "");
 
         // Act & Assert
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             transactionHandler.validateTransaction(invalidDTO);
         });
     }
@@ -213,6 +214,65 @@ class TransactionHandlerTest {
         verify(transactionService, times(1)).performTransaction(any(TransactionRequestDTO.class));
     }
 
+    @Test
+    void testValidateTransaction_Valid() {
+        TransactionRequestDTO validDTO = new TransactionRequestDTO("1", "DEPOSIT", new BigDecimal("100.00"), "user123");
 
+        assertDoesNotThrow(() -> {
+            transactionHandler.validateTransaction(validDTO);
+        });
+    }
+
+    @Test
+    void testValidateTransaction_Invalid() {
+        TransactionRequestDTO invalidDTO = new TransactionRequestDTO("", "", BigDecimal.ZERO, "");
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            transactionHandler.validateTransaction(invalidDTO);
+        });
+
+        assertTrue(exception.getMessage().contains("Error en los datos de entrada"));
+    }
+
+    @Test
+    void testPerformTransaction_UnexpectedError() {
+        // Arrange
+        TransactionRequestDTO requestDTO = new TransactionRequestDTO("1", "DEPOSIT", new BigDecimal("100.00"), "user123");
+
+        when(transactionService.performTransaction(any(TransactionRequestDTO.class)))
+                .thenReturn(Mono.error(new RuntimeException("Error interno del servidor")));
+
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.bodyToMono(TransactionRequestDTO.class)).thenReturn(Mono.just(requestDTO));
+
+        // Act
+        Mono<ServerResponse> result = transactionHandler.performTransaction(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.statusCode().is4xxClientError()) // Puede ser 500 dependiendo de cómo manejes errores
+                .verifyComplete();
+    }
+
+
+    @Test
+    void testStreamTransactions_Success() {
+        // Arrange
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
+        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
+
+        when(transactionService.existsByAccountId("123")).thenReturn(Mono.just(true));
+        when(transactionService.streamTransactions("123"))
+                .thenReturn(Flux.just(new Transaction()));
+
+        // Act
+        Mono<ServerResponse> result = transactionHandler.streamTransactions(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.statusCode().is2xxSuccessful())
+                .verifyComplete();
+    }
 
 }
