@@ -2,7 +2,9 @@ package com.example.transactionalms.controller;
 
 import com.example.transactionalms.dto.TransactionRequestDTO;
 import com.example.transactionalms.dto.TransactionResponseDTO;
+import com.example.transactionalms.model.Transaction;
 import com.example.transactionalms.service.TransactionService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,10 +12,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -67,6 +71,68 @@ class TransactionHandlerTest {
         StepVerifier.create(result)
                 .expectNextMatches(serverResponse -> serverResponse.statusCode().is4xxClientError())
                 .verifyComplete();
+    }
+
+    @Test
+    void testStreamTransactions_MissingAccountId() {
+        // Arrange
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.queryParam("accountId")).thenReturn(Optional.empty());
+        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
+
+        // Act
+        Mono<ServerResponse> result = transactionHandler.streamTransactions(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.statusCode().is4xxClientError())
+                .verifyComplete();
+    }
+
+    @Test
+    void testStreamTransactions_MissingToken() {
+        // Arrange
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
+        when(request.queryParam("token")).thenReturn(Optional.empty());
+
+        // Act
+        Mono<ServerResponse> result = transactionHandler.streamTransactions(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.statusCode().is4xxClientError())
+                .verifyComplete();
+    }
+
+    @Test
+    void testStreamTransactions_ValidAccountId() {
+        // Arrange
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
+        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
+
+        when(transactionService.existsByAccountId("123")).thenReturn(Mono.just(true));
+        when(transactionService.streamTransactions("123")).thenReturn(Flux.just(new Transaction()));
+
+        // Act
+        Mono<ServerResponse> result = transactionHandler.streamTransactions(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.statusCode().is2xxSuccessful())
+                .verifyComplete();
+    }
+
+    @Test
+    void testValidateTransaction_InvalidDTO() {
+        // Arrange
+        TransactionRequestDTO invalidDTO = new TransactionRequestDTO("", "", BigDecimal.ZERO, "");
+
+        // Act & Assert
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            transactionHandler.validateTransaction(invalidDTO);
+        });
     }
 
 

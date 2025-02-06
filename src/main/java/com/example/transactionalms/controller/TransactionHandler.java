@@ -56,7 +56,7 @@ public class TransactionHandler {
 
 
 
-    private void validateTransaction(TransactionRequestDTO transactionRequest) {
+    void validateTransaction(TransactionRequestDTO transactionRequest) {
         var validator = Validation.buildDefaultValidatorFactory().getValidator();
         var violations = validator.validate(transactionRequest);
         if (!violations.isEmpty()) {
