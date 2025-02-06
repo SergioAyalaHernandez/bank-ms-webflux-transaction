@@ -78,7 +78,7 @@ public class TransactionService {
                         .thenReturn(mapToResponse(savedTransaction)));
     }
 
-    private static Transaction mapDataToTransaction(TransactionRequestDTO request, BigDecimal initialBalance, BigDecimal finalBalance) {
+    static Transaction mapDataToTransaction(TransactionRequestDTO request, BigDecimal initialBalance, BigDecimal finalBalance) {
         Transaction transaction = new Transaction();
         transaction.setAccountId(request.getAccountId());
         transaction.setTransactionType(request.getTransactionType());

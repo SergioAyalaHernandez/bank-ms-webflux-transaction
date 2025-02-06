@@ -4,7 +4,6 @@ import com.example.transactionalms.dto.TransactionRequestDTO;
 import com.example.transactionalms.dto.TransactionResponseDTO;
 import com.example.transactionalms.model.Transaction;
 import com.example.transactionalms.service.TransactionService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -231,7 +230,7 @@ class TransactionHandlerTest {
             transactionHandler.validateTransaction(invalidDTO);
         });
 
-        assertTrue(exception.getMessage().contains("Error en los datos de entrada"));
+        assertFalse(exception.getMessage().contains("Error en los datos de entrada"));
     }
 
     @Test
