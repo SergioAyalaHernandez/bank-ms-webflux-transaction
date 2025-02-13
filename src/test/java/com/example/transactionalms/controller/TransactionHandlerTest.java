@@ -35,7 +35,7 @@ class TransactionHandlerTest {
     void testPerformTransaction_Success() {
         // Arrange
         TransactionRequestDTO requestDTO = new TransactionRequestDTO("1", "DEPOSIT", new BigDecimal("100.00"), "1");
-        TransactionResponseDTO responseDTO = new TransactionResponseDTO(); // Configurar como sea necesario
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
 
         when(transactionService.performTransaction(any(TransactionRequestDTO.class)))
                 .thenReturn(Mono.just(responseDTO));
