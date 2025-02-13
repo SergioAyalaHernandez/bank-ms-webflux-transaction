@@ -1,6 +1,5 @@
 package com.example.transactionalms.service;
 
-import com.example.transactionalms.config.token.RequestTokenHolder;
 import com.example.transactionalms.dto.AccountDTO;
 import com.example.transactionalms.dto.TransactionRequestDTO;
 import com.example.transactionalms.dto.TransactionResponseDTO;
@@ -23,36 +22,30 @@ public class TransactionService {
     private static final Logger log = LoggerFactory.getLogger(TransactionService.class);
     private final WebClient webClient;
     private final TransactionRepository transactionRepository;
-    private final RequestTokenHolder tokenHolder;
+    private final MessagePublisherService messagePublisherService;
 
     public TransactionService(
             TransactionRepository transactionRepository,
-            WebClient.Builder webClientBuilder,
-            RequestTokenHolder tokenHolder) {
+            WebClient.Builder webClientBuilder, MessagePublisherService messagePublisherService) {
         this.transactionRepository = transactionRepository;
-        this.tokenHolder = tokenHolder;
         this.webClient = webClientBuilder
                 .baseUrl("http://localhost:8080/api/accounts")
                 .build();
+        this.messagePublisherService = messagePublisherService;
     }
 
     public Mono<TransactionResponseDTO> performTransaction(TransactionRequestDTO request) {
-        return tokenHolder.getToken()
-                .flatMap(token -> {
-                    log.info("Using token for transaction: {}", token);
-                    return webClient.get()
-                            .uri("/{id}", request.getAccountId())
-                            .headers(headers -> headers.setBearerAuth(token))
-                            .retrieve()
-                            .bodyToMono(AccountDTO.class)
-                            .flatMap(account -> processTransaction(request, account, token));
-                });
+        return webClient.get()
+                .uri("/{id}", request.getAccountId())
+                .retrieve()
+                .bodyToMono(AccountDTO.class)
+                .flatMap(account -> processTransaction(request, account));
     }
+
 
     private Mono<TransactionResponseDTO> processTransaction(
             TransactionRequestDTO request,
-            AccountDTO account,
-            String token) {
+            AccountDTO account) {
         BigDecimal initialBalance = account.getBalance();
         BigDecimal finalBalance;
 
@@ -71,11 +64,29 @@ public class TransactionService {
         return transactionRepository.save(transaction)
                 .flatMap(savedTransaction -> webClient.post()
                         .uri("/{id}/balance", request.getAccountId())
-                        .headers(headers -> headers.setBearerAuth(token))
                         .bodyValue(new UpdateBalanceRequest(finalBalance))
                         .retrieve()
                         .bodyToMono(Void.class)
-                        .thenReturn(mapToResponse(savedTransaction)));
+                        .then(Mono.fromRunnable(() ->
+                                messagePublisherService.publishTransactionMessage(
+                                        request.getTransactionType(),
+                                        request.getAccountId(),
+                                        request.getUserId(),
+                                        true
+                                )
+                        ))
+                        .thenReturn(mapToResponse(savedTransaction))
+                )
+                .onErrorResume(e -> {
+                    log.error("Transaction failed: {}", e.getMessage());
+                    messagePublisherService.publishTransactionMessage(
+                            request.getTransactionType(),
+                            request.getAccountId(),
+                            request.getUserId(),
+                            false
+                    );
+                    return Mono.error(e);
+                });
     }
 
     static Transaction mapDataToTransaction(TransactionRequestDTO request, BigDecimal initialBalance, BigDecimal finalBalance) {
