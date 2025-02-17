@@ -29,16 +29,10 @@ public class TransactionHandler {
 
     public Mono<ServerResponse> streamTransactions(ServerRequest request) {
         String accountId = request.queryParam("accountId").orElse(null);
-        String token = request.queryParam("token").orElse(null); // Obtener token como query param
 
         if (accountId == null || accountId.isEmpty()) {
             return ServerResponse.badRequest()
                     .bodyValue("El parámetro 'accountId' es requerido y no puede estar vacío.");
-        }
-
-        if (token == null || token.isEmpty()) {
-            return ServerResponse.badRequest()
-                    .bodyValue("El parámetro 'token' es requerido y no puede estar vacío.");
         }
 
         return transactionService.existsByAccountId(accountId)
