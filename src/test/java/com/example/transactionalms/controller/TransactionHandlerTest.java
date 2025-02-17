@@ -77,23 +77,6 @@ class TransactionHandlerTest {
         // Arrange
         ServerRequest request = mock(ServerRequest.class);
         when(request.queryParam("accountId")).thenReturn(Optional.empty());
-        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
-
-        // Act
-        Mono<ServerResponse> result = transactionHandler.streamTransactions(request);
-
-        // Assert
-        StepVerifier.create(result)
-                .expectNextMatches(response -> response.statusCode().is4xxClientError())
-                .verifyComplete();
-    }
-
-    @Test
-    void testStreamTransactions_MissingToken() {
-        // Arrange
-        ServerRequest request = mock(ServerRequest.class);
-        when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
-        when(request.queryParam("token")).thenReturn(Optional.empty());
 
         // Act
         Mono<ServerResponse> result = transactionHandler.streamTransactions(request);
@@ -120,7 +103,6 @@ class TransactionHandlerTest {
         // Arrange
         ServerRequest request = mock(ServerRequest.class);
         when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
-        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
 
         when(transactionService.existsByAccountId("123")).thenReturn(Mono.just(false));
 
@@ -139,7 +121,6 @@ class TransactionHandlerTest {
         // Arrange
         ServerRequest request = mock(ServerRequest.class);
         when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
-        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
 
         when(transactionService.existsByAccountId("123")).thenReturn(Mono.error(new RuntimeException("Database error")));
 
@@ -190,7 +171,6 @@ class TransactionHandlerTest {
                 .expectNextMatches(response -> response.statusCode().is2xxSuccessful())
                 .verifyComplete();
 
-        // Verifica que el método de servicio se llamó exactamente 1 vez
         verify(transactionService, times(1)).performTransaction(any(TransactionRequestDTO.class));
     }
 
@@ -240,7 +220,6 @@ class TransactionHandlerTest {
         // Arrange
         ServerRequest request = mock(ServerRequest.class);
         when(request.queryParam("accountId")).thenReturn(Optional.of("123"));
-        when(request.queryParam("token")).thenReturn(Optional.of("validToken"));
 
         when(transactionService.existsByAccountId("123")).thenReturn(Mono.just(true));
         when(transactionService.streamTransactions("123"))
