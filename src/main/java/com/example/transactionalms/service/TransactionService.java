@@ -29,7 +29,7 @@ public class TransactionService {
             WebClient.Builder webClientBuilder, MessagePublisherService messagePublisherService) {
         this.transactionRepository = transactionRepository;
         this.webClient = webClientBuilder
-                .baseUrl("http://localhost:8080/api/accounts")
+                .baseUrl("http://localhost:8082/api/accounts")
                 .build();
         this.messagePublisherService = messagePublisherService;
     }
