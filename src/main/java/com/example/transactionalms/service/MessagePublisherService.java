@@ -22,11 +22,11 @@ public class MessagePublisherService {
     @Value("${rabbitmq.queue.name}")
     private String queueName;
 
-    public void publishTransactionMessage(String transactionType, String accountId, String userId, boolean status) {
+    public void publishTransactionMessage(String transactionType, String accountId, String userId, boolean status, String mount, String finalBalance) {
         MessageDto message = new MessageDto();
         message.setIdEntidad(accountId);
         message.setFecha(LocalDateTime.now().toString());
-        message.setMensaje("Se realizó una " + transactionType + " en la cuenta " + accountId + " por el usuario " + userId);
+        message.setMensaje("Se realizó una " + transactionType + " en la cuenta " + accountId + " por el usuario " + userId + " Monto de la transacción: " + mount + " monto final: " + finalBalance);
         message.setRecurso("transacción");
         message.setEstado(status);
 

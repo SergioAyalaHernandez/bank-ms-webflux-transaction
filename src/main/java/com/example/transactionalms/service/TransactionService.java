@@ -72,7 +72,9 @@ public class TransactionService {
                                         request.getTransactionType(),
                                         request.getAccountId(),
                                         request.getUserId(),
-                                        true
+                                        true,
+                                        String.valueOf(request.getAmount()),
+                                        String.valueOf(finalBalance)
                                 )
                         ))
                         .thenReturn(mapToResponse(savedTransaction))
@@ -83,7 +85,9 @@ public class TransactionService {
                             request.getTransactionType(),
                             request.getAccountId(),
                             request.getUserId(),
-                            false
+                            false,
+                            String.valueOf(request.getAmount()),
+                            String.valueOf(finalBalance)
                     );
                     return Mono.error(e);
                 });
